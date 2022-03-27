@@ -6,4 +6,7 @@
 3. used "GET", "POST" requests
 
 **2022.03.26(Sat)**
-1. Implemented thr DELETE function on the lists
+1. Implemented the DELETE function on the lists
+
+**2022.03.27(Sun)**
+1. Implemented the detail page on tasks
