@@ -7,6 +7,10 @@ app.use(bodyParser.urlencoded({extended : true}));
 const MongoClient = require('mongodb').MongoClient
 app.set('view engine', 'ejs');
 
+app.use('/public', express.static('public'));
+
+
+
 var db;
 
 MongoClient.connect('mongodb+srv://Goouk:Goouk123@goouk.ug9mm.mongodb.net/myFirstDatabase?retryWrites=true&w=majority', function(error, client){
@@ -35,11 +39,14 @@ app.get('/beauty', function(req, res){
 });
 
 app.get('/', function(req, res){
-    res.sendFile(__dirname + '/index.html');
+    // 브라우저는 .html파일만 인식하고 .ejs파일을 모르기 때문에 render를 통해서 변환. html 파일은 sendFile() 사용
+    // res.sendFile(__dirname + '/index.ejs');
+    res.render('index.ejs');
 });
 
 app.get('/write', function(req, res){
-    res.sendFile(__dirname + '/write.html');
+    // res.sendFile(__dirname + '/views/write.ejs');
+    res.render('write.ejs');
 });
 
 // app.post('경로', function(){})
@@ -91,5 +98,20 @@ app.delete('/delete', function(req, res){
     db.collection('post').deleteOne(req.body, function(error, result){
         console.log('삭제완료');
         res.status(200).send({ message : '성공했습니다' });
+    });
+});
+
+// 상세페이지(URL 파라미터 설정)
+app.get('/detail/:id', function(req, res){
+
+    req.params.id = parseInt(req.params.id);
+
+    db.collection('post').findOne({ _id : req.params.id }, function(error, result){
+        console.log(result);
+        if (result != null) {
+            res.render('detail.ejs', { data : result });
+        } else {
+            res.status(400).send({ message : '존재하지 않는 내용입니다' });
+        }
     });
 });
