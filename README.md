@@ -10,3 +10,6 @@
 
 **2022.03.27(Sun)**
 1. Implemented the detail page on tasks
+
+**2022.04.03(Sun)**
+1. Implemented the updating function on the lists
