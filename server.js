@@ -3,6 +3,11 @@ const app = express();
 // body-parser는 요청 데이터(body) 해석을 쉽게 도와주는 라이브러리
 const bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({extended : true}));
+// method-override 라이브러리(PUT, DELETE 사용 가능)
+const methodOverride = require('method-override');
+const req = require('express/lib/request');
+const res = require('express/lib/response');
+app.use(methodOverride('_method'));
 // mongoDB 접속 
 const MongoClient = require('mongodb').MongoClient
 app.set('view engine', 'ejs');
@@ -51,7 +56,8 @@ app.get('/write', function(req, res){
 
 // app.post('경로', function(){})
 app.post('/add', function(req, res){
-    res.send('전송완료');
+    // res.send('전송완료');
+    res.redirect('/list');
 
     var title = req.body.title;
     var date = req.body.date;
@@ -66,6 +72,7 @@ app.post('/add', function(req, res){
         // counter라는 콜렉션에 있는 totalPost 라는 항목도 수정하여 증가시켜야함
         // update({수정값}, { $operator : {수정 내용}}, function(){})
         db.collection('counter').updateOne({ name : 'numberOfPosts'}, { $inc : { totalPost : 1 } }, function(error, result){
+
             if(error) {
                 return console.log(error);
             }
@@ -73,7 +80,6 @@ app.post('/add', function(req, res){
         
         });
     });
-    
     console.log(req.body);
 });
 
@@ -113,5 +119,28 @@ app.get('/detail/:id', function(req, res){
         } else {
             res.status(400).send({ message : '존재하지 않는 내용입니다' });
         }
+    });
+});
+
+// edit 페이지
+app.get('/edit/:id', function(req, res){
+
+    req.params.id = parseInt(req.params.id);
+
+    db.collection('post').findOne({ _id : req.params.id }, function(error, result){
+        console.log(result);
+        if (result != null) {
+            res.render('edit.ejs', { data : result });
+        } else {
+            res.status(400).send({ message : '존재하지 않는 내용입니다' });
+        }
+    });
+});
+
+app.put('/edit', function(req, res){
+    // updateOne({대상}, {수정값}, 콜백함수)
+    db.collection('post').updateOne({ _id : parseInt(req.body.id) }, { $set : { 할일 : req.body.title, 날짜 : req.body.date } }, function(error, result){
+        console.log('수정완료');
+        res.redirect('/list');
     });
 });
